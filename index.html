@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>CS194-26 Proj3</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        div {
+            padding-bottom: 8px;
+        }
+        .caption {
+            text-align: center;
+        }
+    </style>
+
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="#">Adel Setoodehnia | CS194-26 Project 3</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#Intro">Intro</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#Corr">Correspondences</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#Mid">Mid-Way</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#Morph">Morphing</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#Mean">Mean</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#B&W">Bells and Whistles</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                <p></p>
+                <h3>Face Morphing</h3>
+            </div>
+            <div class="col-sm-1"></div>
+        </div>
+        
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-3">
+                <img src="img/adel.jpg" class="mx-auto d-block" style="width:100%">
+            </div>
+            <div class="col-sm-4">
+                <img src="img/midway_img_adel_brent_n_25.jpg" class="mx-auto d-block" style="width:72.5%">
+            </div>
+            <div class="col-sm-3">
+                <img src="img/brent.jpg" class="mx-auto d-block" style="width:100%">
+            </div>
+            <div class="col-sm-1"></div>
+        </div>
+
+        <div class="row" id=Intro>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                <h3>Introduction</h3>
+                <p>
+                    In this project, I produced a "morph" animation of my face into my roommate's, computed the mean of the faces of a population of Danish computer scientists, and extrapolated from this population mean to create a caricature of myself.  So, if you keep scrolling you're guaranteed to see some cool stuff :)
+                </p>
+            </div>
+            <div class="col-sm-1"></div>
+        </div>
+        
+        
+        <div class="row" id=Corr>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                <h3>Defining Correspondences</h3>
+                <p>
+                    Before beginning to think of how to between two images, one must define pairs of corresponding points on the two images by hand (yes, this can unfortunately get quite tedious).  After defining pairs of corresponding points between the two images, comes the "connecting" of the dots (a.k.a. drawing a bunch of triangles)!
+                </p>
+            </div>
+            <div class="col-sm-1"></div>
+        </div>
+        
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-4">
+                <img src="img/adel_correspondences.png" class="mx-auto d-block" style="width:100%">
+            </div>
+            <div class="col-sm-4">
+                <img src="img/brent_correspondences.png" class="mx-auto d-block" style="width:100%">
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                <p>
+                    There is a handy algorithm called the Delaunay triangulation which takes a bunch of coordinates and then produces a triangulation as seen above.  However, it is important to note that one must use the same set of points to compute the triangulation for both images.  This is because for the later steps, it must be ensured that the triangles in both images are comprised using the same numbered points (e.g. if the Delaunay triangulation returns a triangle with points (1, 5, 3), then in both images, the 1st, 5th, and 3rd points should form one triangle).
+                </p>
+                <p>
+                    Thus, a weighted sum of two sets of points is passed into the Delaunay triangulation algorithm to produce the above ouput (in this case, alpha=0.5 which is just taking the average):
+                    $$\texttt{tri} = \texttt{Delaunay}(\texttt{mid_pts})\ \ \texttt{ where } \ \ \texttt{mid_pts} = (1-\alpha)\cdot\texttt{im1_pts} + \alpha\cdot\texttt{im2_pts}$$
+                </p>
+            </div>
+            <div class="col-sm-1"></div>
+        </div>
+
+        <div class="row" id=Mid>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                <h3>Computing the "Mid-way Face"</h3>
+                <p>
+                    Just to get a feel of how everything works, before computing the entire morph sequence, here I first compute the mid-way face. This is the image that should occur exactly halfway through the morph sequence.
+                    <ol>
+                        <li>Compute the mid_pts and triangles using the above formula with alpha=0.5</li>
+                        <li>For every triangle, we fine the affine transformation matrix, A, between the triangle coordinates of each image to the triangle coordinates of the mid_pts.</li>
+                        Say, the triangle of im1 is composed of the points (a, b, c) and the triangle of mid_pts is composed of the points (d, e, f), then we find A as follows:
+                        $$A = \begin{pmatrix}
+                                    d_x & e_x & f_x \\
+                                    d_y & e_y & f_y \\
+                                    1 & 1 & 1
+                              \end{pmatrix}
+                              \begin{pmatrix}
+                            a_x & b_x & c_x \\
+                            a_y & b_y & c_y \\
+                            1 & 1 & 1
+                            \end{pmatrix}^{-1}$$
+                        <li>Apply the inverse transformation (for im1 and im2) on points within the triangle in the mid_pts to find what pixel to fill in for the mid-way image</li>
+                        <li>Weight the pixel values by alpha when combining from the two images (alpha=0.5)</li>
+                    </ol>
+                    By executing the above steps, I was able to generate the mid-way face of me and my roommate (which was also seen at the very top of this page):
+                </p>
+                <img src="img/midway_img_adel_brent_n_25.jpg" class="mx-auto d-block" style="width:30%">
+            </div>
+            <div class="col-sm-1"></div>
+        </div>
+
+        <div class="row" id=Morph>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                <h3>The Morph Sequence</h3>
+                <p>
+                    Now to piece all of it together!  The basic idea here is to just keep repeating the steps detailed above for computing the mid-way face.  The only difference this time, is we do it for several different alpha values!  For this assignment I produced 45 frames of animation. In other words, I repeated the above steps 45 times with 45 different alpha values evenly spaced on the range [0, 1].  I then stitched the 45 output images into the following .gif file:
+                    <img src="img/adel_brent_n_25_nf_45.gif" class="mx-auto d-block" style="width:30%">
+                </p>
+            </div>
+            <div class="col-sm-1"></div>
+        </div>
+
+        <div class="row" id=Mean>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                <h3>The "Mean face" of a population</h3>
+                <p>
+                    Now, using similar methods as previously mentioned, I aim to find the "mean" face of a population. I decide to use a <a href="http://www2.imm.dtu.dk/~aam/datasets/datasets.html">dataset</a> of male, Danish computer scientists.  To compute the mean, or average, face of all these images, I basically do the same thing as I did in computing the mid-way face!  The only difference now, is that I am transforming more than just two images to the mean points.
+                </p>
+                <img src="img/mean_face.jpg" class="mx-auto d-block" style="width:50%">
+                <div class="caption center-block">mean face of male Danish computer scientists</div>
+                <p>
+                    Now let's look at some images morphed into the shape of the mean face!
+                </p>
+            </div>
+            <div class="col-sm-1"></div>
+        </div>
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-3">
+                <img src="img/11-1m.jpg" class="mx-auto d-block" style="width:100%">
+                <p></p>
+                <img src="img/11-1m_to_mean.jpg" class="mx-auto d-block" style="width:100%">
+                <div class="caption center-block">11-1m.jpg warped to mean</div>
+            </div>
+            <div class="col-sm-4">
+                <img src="img/13-1m.jpg" class="mx-auto d-block" style="width:73%">
+                <p></p>
+                <img src="img/13-1m_to_mean.jpg" class="mx-auto d-block" style="width:73%">
+                <div class="caption center-block">13-1m.jpg warped to mean</div>
+            </div>
+            <div class="col-sm-3">
+                <img src="img/40-1m.jpg" class="mx-auto d-block" style="width:100%">
+                <p></p>
+                <img src="img/40-1m_to_mean.jpg" class="mx-auto d-block" style="width:100%">
+                <div class="caption center-block">40-1m.jpg warped to mean</div>
+            </div>
+            <div class="col-sm-1"></div>
+        </div>
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-4">
+                <img src="img/adel_small_to_mean.jpg" class="mx-auto d-block" style="width:75%">
+                <div class="caption center-block">me warped to mean</div>
+            </div>
+            <div class="col-sm-4">
+                <img src="img/mean_to_adel_small.jpg" class="mx-auto d-block" style="width:75%">
+                <div class="caption center-block">mean warped to me</div>
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                <h3>Caricatures: Extrapolating from the mean</h3>
+                <p>
+                    Now, to take it one step further... instead of restricting ourselves to alpha values in [0,1], by taking values outside this range we can extrapolate (before we were interpolating) from the mean face found in the previous section.  Here is the output that I was able to generate with alpha=-1.5 (please pardon the discoloration):
+                </p>
+                <img src="img/caricature_adel_small_mean_face_7_5.jpg" class="mx-auto d-block" style="width:30%">
+            </div>
+            <div class="col-sm-1"></div>
+        </div>
+
+        <div class="row" id=B&W>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-10">
+                <h3>Bells and Whistles!</h3>
+                <p>
+                    This part was particularly fun.  I joined up with a bunch of students in the class and we were able to chain a bunch of morphs together to produce this marvelous gem:
+                </p>
+                <center>
+                    <iframe width="840" height="472.5" src="https://www.youtube-nocookie.com/embed/sTT0-nN3vtc" frameborder="0"
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                    </iframe>
+                </center>
+            </div>
+            <div class="col-sm-1"></div>
+        </div>
+
+    </div>
+
+    
+        
+</body>
+
+</html>
